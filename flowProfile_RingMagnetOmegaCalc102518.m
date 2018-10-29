@@ -6,7 +6,7 @@ close all
 % directories created by pipeMeshForRingMagCalc.m
 
 % Made into git repository 10/29/18 ~4PM. Making pointless comment to
-% configurate everything...
+% configurate everything......
 
 dirList = dir('flowProfileMeshes');
 numOfFolders = size(dirList,1);
