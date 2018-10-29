@@ -13,7 +13,8 @@ numOfFolders = size(dirList,1);
 
 for fileIter = 3:numOfFolders
     
-    caseParams = importdata(['flowProfileMeshes/',dirList(fileIter).name,'/flowProfile_Parameters.csv']);
+    caseParams = importdata(['flowProfileMeshes/',dirList(fileIter).name,...
+        '/flowProfile_Parameters.csv']);
     rResCases(fileIter-2) = caseParams(1);
     thetaResCases(fileIter-2) = caseParams(2);
     lengthResCases(fileIter-2) = caseParams(3);
@@ -36,13 +37,19 @@ for aIter = 1:numOfaCases
         
         % Import the .csv files that contain the mesh data, magnetic field data,
         % and case parameters for the problem, created by pipeMeshForRingMagCalc.m
-        Bx = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,'/flowProfile_PipeBFieldX.csv']);
-        By = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,'/flowProfile_PipeBFieldY.csv']);
-        Bz = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,'/flowProfile_PipeBFieldZ.csv']);
+        Bx = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
+            '/flowProfile_PipeBFieldX.csv']);
+        By = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
+            '/flowProfile_PipeBFieldY.csv']);
+        Bz = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
+            '/flowProfile_PipeBFieldZ.csv']);
         
-        xMesh = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,'/flowProfile_PipeMeshX.csv']);
-        yMesh = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,'/flowProfile_PipeMeshY.csv']);
-        zMesh = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,'/flowProfile_PipeMeshZ.csv']);
+        xMesh = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
+            '/flowProfile_PipeMeshX.csv']);
+        yMesh = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
+            '/flowProfile_PipeMeshY.csv']);
+        zMesh = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
+            '/flowProfile_PipeMeshZ.csv']);
         
         % Define the important values for the problem based on the caseParams file
         rPipe = rPipeCases(caseIter);
@@ -95,9 +102,11 @@ for aIter = 1:numOfaCases
                 r = rPipe*(rIter-1)/(radialRes-1);
                 for thetaIter = 1:thetaRes
                     for zIter = 1:lengthRes
-                        B = [Bx(rIter,thetaIter,zIter),By(rIter,thetaIter,zIter),Bz(rIter,thetaIter,zIter)];
+                        B = [Bx(rIter,thetaIter,zIter),By(rIter,thetaIter,zIter),...
+                            Bz(rIter,thetaIter,zIter)];
                         momentArm = ...
-                            [xMesh(rIter,thetaIter,zIter),yMesh(rIter,thetaIter,zIter),rFlowCenter+zMesh(rIter,thetaIter,zIter)];
+                            [xMesh(rIter,thetaIter,zIter),yMesh(rIter,thetaIter,zIter),...
+                            rFlowCenter+zMesh(rIter,thetaIter,zIter)];
                         uMagnet = cross([0,omegaGuess,0],momentArm);
                         uRel = u-uMagnet;
                         j = cross(uRel,B);
@@ -108,7 +117,8 @@ for aIter = 1:numOfaCases
                         Fx(rIter,thetaIter,zIter) = jxB(1)*dV;
                         Fy(rIter,thetaIter,zIter) = jxB(2)*dV;
                         Fz(rIter,thetaIter,zIter) = jxB(3)*dV;
-                        FMagnet = -[Fx(rIter,thetaIter,zIter),Fy(rIter,thetaIter,zIter),Fz(rIter,thetaIter,zIter)];
+                        FMagnet = -[Fx(rIter,thetaIter,zIter),Fy(rIter,thetaIter,zIter),...
+                            Fz(rIter,thetaIter,zIter)];
                         
                         MElement = cross(momentArm,FMagnet);
                         
@@ -126,14 +136,14 @@ for aIter = 1:numOfaCases
             if MyTotal > 0
                 omegaGuessNew = (omegaGuess+omegaMax)/2;
                 omegaMin = omegaGuess;
-                disp('greater')
+                % disp('greater')
             elseif MyTotal < 0
                 omegaGuessNew = (omegaGuess+omegaMin)/2;
                 omegaMax = omegaGuess;
-                disp('less')
+                % disp('less')
             else
                 omegaIter = numOfOmegaIters;
-                disp('equal')
+                % disp('equal')
             end
             
             omegaIter = omegaIter + 1;
@@ -153,25 +163,28 @@ figure()
 hold on
 legendEntries = {};
 for aIter = 1:numOfaCases
-    plot(rFlowCenterCases,(omegaSol(aIter,:)),'LineWidth',1.5)
+    plot(rFlowCenterCases,rFlowCenterCases.*(omegaSol(aIter,:)),'LineWidth',1.5)
     legendEntry = sprintf('a = %i',aCases(aIter));
     legendEntries = [legendEntries;legendEntry];
 end
 xlabel('Distance from magnet center to pipe center')
-ylabel('Omega')
+ylabel('Omega * r')
 legend(legendEntries)
+set(gca,'FontSize',20)
 
 hold off
 
 figure()
 hold on
 for aIter = 1:numOfaCases
-    u = 2*Q*(aCases(aIter)+2)/(2*pi*aCases(aIter)*rPipe^2)*(1-(linspace(0,rPipe,radialRes).^aCases(aIter)/rPipe^aCases(aIter)));
+    u = 2*Q*(aCases(aIter)+2)/(2*pi*aCases(aIter)*rPipe^2)*...
+        (1-(linspace(0,rPipe,radialRes).^aCases(aIter)/rPipe^aCases(aIter)));
     plot(linspace(0,rPipe,radialRes),u,'LineWidth',1.5)
 end
 xlabel('radial point in pipe')
 ylabel('flow speed [m/s]')
 legend(legendEntries)
+set(gca,'FontSize',20)
 
 hold off
 
@@ -180,6 +193,10 @@ hold on
 for aIter = 1:numOfaCases
     plot(rFlowCenterCases,FxTotalSol(aIter,:),'LineWidth',1.5)
 end
+xlabel('Distance from magnet center to pipe center')
+ylabel('Force on the magnet ring')
+legend(legendEntries)
+set(gca,'FontSize',20)
 
 hold off
 
