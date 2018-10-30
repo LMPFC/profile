@@ -13,29 +13,73 @@ close all
 dirList = dir('flowProfileMeshes');
 numOfFolders = size(dirList,1);
 
+% Setup what the case requirements are
+rResReq = 32;
+thetaResReq =16;
+lengthResReq = 16;
+pipeWallReq = 0.003;
+airGapReq = 0.002;
+rPipeReq = 0.0127;
+lPipeReq = 0.2;
+magORReq = 0.05;
+magIRReq = 0.049;
+magHReq = 0.03;
+
 for fileIter = 3:numOfFolders
     
     caseParams = importdata(['flowProfileMeshes/',dirList(fileIter).name,...
         '/flowProfile_Parameters.csv']);
+    
+    if (isempty(rResReq) || sum(rResReq == caseParams(1))) &&...
+            (isempty(thetaResReq) || sum(thetaResReq == caseParams(2))) &&...
+            (isempty(lengthResReq) || sum(lengthResReq == caseParams(3))) && ...
+            (isempty(pipeWallReq) || sum(pipeWallReq == caseParams(4))) &&...
+            (isempty(airGapReq) || sum(airGapReq ==  caseParams(5))) &&...
+            (isempty(rPipeReq) || sum(rPipeReq == caseParams(6))) &&...
+            (isempty(lPipeReq) || sum(lPipeReq == caseParams(7))) &&...
+            (isempty(magORReq) || sum(magORReq == caseParams(8))) &&...
+            (isempty(magIRReq) || sum(magIRReq == caseParams(9))) &&...
+            (isempty(magHReq) || sum(magHReq == caseParams(10)))
+    
     rResCases(fileIter-2) = caseParams(1);
     thetaResCases(fileIter-2) = caseParams(2);
     lengthResCases(fileIter-2) = caseParams(3);
-    rFlowCenterCases(fileIter-2) = caseParams(4);
-    rPipeCases(fileIter-2) = caseParams(5);
-    lPipeCases(fileIter-2) = caseParams(6);
-    magORCases(fileIter-2) = caseParams(7);
-    magIRCases(fileIter-2) = caseParams(8);
-    magHCases(fileIter-2) = caseParams(9);
+    airGapCases(fileIter-2) = caseParams(4);
+    pipeWallCases(fileIter-2) = caseParams(5);
+    rPipeCases(fileIter-2) = caseParams(6);
+    lPipeCases(fileIter-2) = caseParams(7);
+    magORCases(fileIter-2) = caseParams(8);
+    magIRCases(fileIter-2) = caseParams(9);
+    magHCases(fileIter-2) = caseParams(10);
+    
+    casesOfInterest(fileIter-2) = fileIter-2;
+    
+    end
     
 end
 
-numOfSpacingCases = size(rFlowCenterCases,2);
+
 
 aCases = [2 4 6 8 10];
 numOfaCases = size(aCases,2);
+
+casesOfInterest(casesOfInterest==0) = [];   % Necessary
+
+% rResCases(rResCases==0) = [];
+% thetaResCases(thetaResCases==0) = [];
+% lengthResCases(lengthResCases==0) = [];
+% airGapCases(airGapCases==0) = [];
+% pipeWallCases(pipeWallCases==0) = [];
+% rPipeCases(pipeWallCases==0) = [];
+% lPipeCases(lPipeCases==0) =[];
+% magORCases(magORCases==0) = [];
+% magIRCases(magIRCases==0) = [];
+% magHCases(magHCases==0) = [];
+
+numOfSpacingCases = size(airGapCases,2);
 for aIter = 1:numOfaCases
 
-    for caseIter = 1:numOfSpacingCases
+    for caseIter = casesOfInterest
         
         % Import the .csv files that contain the mesh data, magnetic field data,
         % and case parameters for the problem, created by pipeMeshForRingMagCalc.m
@@ -62,7 +106,8 @@ for aIter = 1:numOfaCases
         rOut = magORCases(caseIter);                % ring magnet outer radius
         rIn = magIRCases(caseIter);                 % ring magnet inner radius
         h = magHCases(caseIter);
-        rFlowCenter = rFlowCenterCases(caseIter);   % distance from mag center to pipe center
+        rFlowCenter = rOut+airGapCases(caseIter)+pipeWallCases(caseIter)+...
+            pipeWallCases(caseIter);   % distance from mag center to pipe center
         
         dr = rPipe/(radialRes-1);   % Radial mesh spacing
         dTheta = 2*pi/thetaRes;     % Theta mesh spacing
@@ -160,6 +205,8 @@ for aIter = 1:numOfaCases
         FxTotalSol(aIter,caseIter) = FxTotal;
     end
 end
+airGapCases(airGapCases==0) = [];
+rFlowCenterCases = airGapCases+rOut+pipeWallReq+rPipeReq;
 
 figure()
 hold on
