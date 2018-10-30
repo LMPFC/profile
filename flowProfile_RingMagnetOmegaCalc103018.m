@@ -18,7 +18,7 @@ rResReq = 32;
 thetaResReq =16;
 lengthResReq = 16;
 pipeWallReq = 0.003;
-airGapReq = 0.002;
+airGapReq = [0.0001 0.0002 0.0004 0.0008 0.0016 0.0032 0.0048 0.0064 0.0096 0.0128 0.0256];
 rPipeReq = 0.0127;
 lPipeReq = 0.2;
 magORReq = 0.05;
@@ -78,9 +78,9 @@ casesOfInterest(casesOfInterest==0) = [];   % Necessary
 
 numOfSpacingCases = size(airGapCases,2);
 for aIter = 1:numOfaCases
-
+    caseIndex = 0;
     for caseIter = casesOfInterest
-        
+        caseIndex = caseIndex + 1;
         % Import the .csv files that contain the mesh data, magnetic field data,
         % and case parameters for the problem, created by pipeMeshForRingMagCalc.m
         Bx = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
@@ -201,8 +201,8 @@ for aIter = 1:numOfaCases
 %             fprintf('\n');
             omegaGuess = omegaGuessNew;
         end
-        omegaSol(aIter,caseIter) = omegaGuess;
-        FxTotalSol(aIter,caseIter) = FxTotal;
+        omegaSol(aIter,caseIndex) = omegaGuess;
+        FxTotalSol(aIter,caseIndex) = FxTotal;
     end
 end
 airGapCases(airGapCases==0) = [];

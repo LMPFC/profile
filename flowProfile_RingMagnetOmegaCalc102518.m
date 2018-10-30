@@ -2,11 +2,7 @@ clear
 clc
 close all
 
-% Adding capabilities as of 10/25/18 12:28:28PM for looping over multiple
-% directories created by pipeMeshForRingMagCalc.m
-
-% Made into git repository 10/29/18 ~4PM. Making pointless comment to
-% configurate everything..
+% Stable version, don't mess with it.
 
 dirList = dir('flowProfileMeshes');
 numOfFolders = size(dirList,1);

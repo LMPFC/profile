@@ -13,10 +13,10 @@ rout = 0.05;        % Outer radius of magnet ring
 h = 0.03;            % Depth of magnet ring
 
 pipeWall = 0.003;   % Thickness of pipe walls [m], mm resolution
-airGap = 0.002;     % Space between magnet and pipe [m], mm resolution
+%airGap = 0.002;     % Space between magnet and pipe [m], mm resolution
 
 %for airGap = [0.001 0.002 0.003 0.004 0.005 0.007 0.010 0.015 0.030 0.050]
-for airGap = [0.001 0.002]
+for airGap = [0.0048 0.0096]
     
     % Distance from pipe center to magnet center, mm res--THIS SHOULD NOT EXCEED 1m!!!
     rFlowCenter = rout+pipeWall+airGap+rPipe;
@@ -147,7 +147,7 @@ for airGap = [0.001 0.002]
     directoryNameToPrintTo = sprintf(...
         ['flowProfileMeshes/flowProfile_0p%04dairGap0p%04dpipeWall_',...
         '%04drRes%04dthetaRes%04dzRes0p%04drPipe0p%04dlPipe_0p%03dOR0p%03dIR0p%03dh'],...
-        airGap*1e4,pipeWall*1e4,radialRes,thetaRes,lengthRes,rPipe*1e4,lPipe*1e4,rout*1e3,rin*1e3,h*1e3);
+        round(airGap*1e4),round(pipeWall*1e4),radialRes,thetaRes,lengthRes,rPipe*1e4,lPipe*1e4,rout*1e3,rin*1e3,h*1e3);
     mkdir(directoryNameToPrintTo)
     
     fileName = [directoryNameToPrintTo,sprintf('/flowProfile_Parameters.csv')];
