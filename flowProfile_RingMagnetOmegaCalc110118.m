@@ -339,6 +339,7 @@ for iter = 2:numOfCasesOfInterest
     
 end
 
+% sort the x and y data of interest to plot
 for caseIter = 2:numOfCasesOfInterest
     if previousLegendVal==legendVarInCaseOrder(caseIter)
         xDataSortIter(legendDataSortIter) = xDataSortIter(legendDataSortIter) + 1;
@@ -355,13 +356,16 @@ for caseIter = 2:numOfCasesOfInterest
         xToPlot(xDataSortIter(legendDataSortIter),legendDataSortIter) = xVarInCaseOrder(caseIter);
         yToPlot(xDataSortIter(legendDataSortIter),legendDataSortIter) = yValuesOfInterest(caseIter);
     end
-end    
+end   
 
 figure()
 hold on
 legendEntries = {};
 
-
+for legendIter = 1:legendMaxIter
+    plot(xToPlot(:,legendIter),yToPlot(:,legendIter),'-o','LineWidth',1.5)
+    % NEED TO ADD TO THIS FOR THE PLOTTING!
+end
 
 hold off
 
