@@ -18,7 +18,7 @@ rResReq = 32;
 thetaResReq =16;
 lengthResReq = 16;
 pipeWallReq = 0.003;
-airGapReq = [0.0001 0.0002 0.0004 0.0008 0.0016 0.0032 0.0048 0.0064 0.0096 0.0128 0.0256];
+airGapReq = [0.0001 0.0002 0.0004 0.0008 0.0016 0.0032 0.0064 0.0128 0.0256];
 rPipeReq = 0.0127;
 lPipeReq = 0.2;
 magORReq = 0.05;
@@ -44,8 +44,8 @@ for fileIter = 3:numOfFolders
     rResCases(fileIter-2) = caseParams(1);
     thetaResCases(fileIter-2) = caseParams(2);
     lengthResCases(fileIter-2) = caseParams(3);
-    airGapCases(fileIter-2) = caseParams(4);
-    pipeWallCases(fileIter-2) = caseParams(5);
+    pipeWallCases(fileIter-2) = caseParams(4);
+    airGapCases(fileIter-2) = caseParams(5);
     rPipeCases(fileIter-2) = caseParams(6);
     lPipeCases(fileIter-2) = caseParams(7);
     magORCases(fileIter-2) = caseParams(8);
@@ -205,14 +205,16 @@ for aIter = 1:numOfaCases
         FxTotalSol(aIter,caseIndex) = FxTotal;
     end
 end
+rPipeCases(rPipeCases==0) = [];
 airGapCases(airGapCases==0) = [];
 rFlowCenterCases = airGapCases+rOut+pipeWallReq+rPipeReq;
 
 figure()
 hold on
 legendEntries = {};
+% Used (rFlowCenterCases-rPipeCases).*omegaSol(aIter,:) for Egemen
 for aIter = 1:numOfaCases
-    plot(rFlowCenterCases,rFlowCenterCases.*(omegaSol(aIter,:)),'LineWidth',1.5)
+    plot(rFlowCenterCases,(rFlowCenterCases-rPipeCases).^1.*(omegaSol(aIter,:)),'-o','LineWidth',1.5)
     legendEntry = sprintf('a = %i',aCases(aIter));
     legendEntries = [legendEntries;legendEntry];
 end
@@ -228,7 +230,7 @@ hold on
 for aIter = 1:numOfaCases
     u = 2*Q*(aCases(aIter)+2)/(2*pi*aCases(aIter)*rPipe^2)*...
         (1-(linspace(0,rPipe,radialRes).^aCases(aIter)/rPipe^aCases(aIter)));
-    plot(linspace(0,rPipe,radialRes),u,'LineWidth',1.5)
+    plot(linspace(0,rPipe,radialRes),u,'-o','LineWidth',1.5)
 end
 xlabel('radial point in pipe')
 ylabel('flow speed [m/s]')
@@ -240,7 +242,7 @@ hold off
 figure()
 hold on
 for aIter = 1:numOfaCases
-    plot(rFlowCenterCases,FxTotalSol(aIter,:),'LineWidth',1.5)
+    plot(rFlowCenterCases,FxTotalSol(aIter,:),'-o','LineWidth',1.5)
 end
 xlabel('Distance from magnet center to pipe center')
 ylabel('Force on the magnet ring')
@@ -251,6 +253,20 @@ hold off
 
 
 
+figure()
+hold on
+legendEntries = {};
+for aIter = 1:numOfaCases
+    plot(rFlowCenterCases,(omegaSol(aIter,:))./(omegaSol(1,:)),'-o','LineWidth',1.5)
+    legendEntry = sprintf('a = %i',aCases(aIter));
+    legendEntries = [legendEntries;legendEntry];
+end
+xlabel('Distance from magnet center to pipe center')
+ylabel('Omega ratio to a = 2 case')
+legend(legendEntries)
+set(gca,'FontSize',20)
+
+hold off
 
 
 
