@@ -10,15 +10,27 @@ numOfFolders = size(dirList,1);
 
 % Setup what the case requirements are
 rResReq = 32;
-thetaResReq =[16 32];
+thetaResReq =[8 16 32];
 lengthResReq = 16;
 pipeWallReq = 0.003;
-airGapReq = [0.001 0.002];
+airGapReq = [0.001 0.002 0.004];
 rPipeReq = 0.0127;
 lPipeReq = 0.2;
 magORReq = 0.05;
 magIRReq = 0.049;
 magHReq = 0.03;
+
+numOfrResCases = size(rResReq,2);
+numOfthetaResCases = size(thetaResReq,2);
+numOflengthResCases = size(lengthResReq,2);
+numOfPipeWallCases = size(pipeWallReq,2);
+numOfairGapCases = size(airGapReq,2);
+numOfrPipeCases = size(rPipeReq,2);
+numOflPipeCases = size(lPipeReq,2);
+numOfmagORCases = size(magORReq,2);
+numOfmagIRCases = size(magIRReq,2);
+numOfmagHCases = size(magHReq,2);
+
 
 for fileIter = 3:numOfFolders
     
@@ -219,18 +231,22 @@ casesOfInterestParams = reshape(casesOfInterestParams,10,numOfCasesOfInterest);
 rFlowCenterCases = airGapCases+rOut+pipeWallReq+rPipeReq;
 
 % Choose the x-axis of the plot by setting the desired x-axis value to 1.
+% The value of a is handled separately
+
+% NOTE: The choice of the variables to iterate over near the start of the
+% code should(?) be the variables that are chosen for x axis and legend.
+
 xAxisParameter = [
     0   % radial resolution
     0   % theta resolution
     0   % length resolution
     0   % pipe wall thickness
-    0   % air gap size
+    1   % air gap size
     0   % pipe radius
     0   % pipe length
     0   % ring magnet outer radius
     0   % ring magnet inner radius
     0   % ring magnet height/depth
-    0   % a parameter in flow profile
     ];
 
 xAxisLabel = {
@@ -244,15 +260,12 @@ xAxisLabel = {
     'ring magnet OR'
     'ring magnet IR'
     'ring magnet height'
-    'a value in flow profile'
     };
 
-
-
-% Parameter to be iterated on in the legend
+% Parameter to be iterated on in the legend--a is handled separately.
 legendParameter = [
     0   % radial resolution
-    0   % theta resolution
+    1   % theta resolution
     0   % length resolution
     0   % pipe wall thickness
     0   % air gap size
@@ -261,7 +274,6 @@ legendParameter = [
     0   % ring magnet outer radius
     0   % ring magnet inner radius
     0   % ring magnet height/depth
-    0   % a parameter in flow profile
     ];
 
 legendLabel = {
@@ -275,8 +287,83 @@ legendLabel = {
     'ring magnet OR'
     'ring magnet IR'
     'ring magnet height'
-    'a value in flow profile'
     };
+
+numOfParameterInstances = [
+    numOfrResCases
+    numOfthetaResCases
+    numOflengthResCases
+    numOfPipeWallCases
+    numOfairGapCases
+    numOfrPipeCases
+    numOflPipeCases
+    numOfmagORCases
+    numOfmagIRCases
+    numOfmagHCases
+    ];
+    
+
+copyOfNumOfParameterInstances = numOfParameterInstances;
+copyOfNumOfParameterInstances(xAxisParameter==0) = [];
+xAxisMaxIter = copyOfNumOfParameterInstances;
+copyOfNumOfParameterInstances = numOfParameterInstances;
+copyOfNumOfParameterInstances(legendParameter==0) = [];
+legendMaxIter = copyOfNumOfParameterInstances;
+
+% Sort through the data
+
+for dataIter = 1:numOfCasesOfInterest
+    
+    xVarInCaseOrder(dataIter) = sum(xAxisParameter.*casesOfInterestParams(:,dataIter));
+    legendVarInCaseOrder(dataIter) = sum(legendParameter.*casesOfInterestParams(:,dataIter));
+    
+end
+
+yValuesOfInterest = omegaSol(1,:);
+
+xDataSortIter = zeros(1,legendMaxIter);
+xDataSortIter(1,1) = 1;
+legendDataSortIter = 1;
+previousLegendVal = legendVarInCaseOrder(1);
+previousXVal = xVarInCaseOrder(1);
+xToPlot(1,1) = previousXVal;
+yToPlot(1,1) = yValuesOfInterest(1);
+
+numOfLegendValsEncountered = 1;
+orderedLegendVals = legendVarInCaseOrder(1);
+for iter = 2:numOfCasesOfInterest
+    if sum(orderedLegendVals==legendVarInCaseOrder(iter)) == 0
+        numOfLegendValsEncountered = numOfLegendValsEncountered + 1;
+        orderedLegendVals(numOfLegendValsEncountered) = legendVarInCaseOrder(iter);
+    end
+    
+end
+
+for caseIter = 2:numOfCasesOfInterest
+    if previousLegendVal==legendVarInCaseOrder(caseIter)
+        xDataSortIter(legendDataSortIter) = xDataSortIter(legendDataSortIter) + 1;
+        xToPlot(xDataSortIter(legendDataSortIter),legendDataSortIter) =...
+            xVarInCaseOrder(caseIter);
+        yToPlot(xDataSortIter(legendDataSortIter),legendDataSortIter) =...
+            yValuesOfInterest(caseIter);
+        disp('legend value did not change')
+    else
+        disp('legend value changed')
+        previousLegendVal = legendVarInCaseOrder(caseIter);
+        legendDataSortIter = sum( (1:legendMaxIter).*(previousLegendVal==orderedLegendVals) );
+        xDataSortIter(legendDataSortIter) = xDataSortIter(legendDataSortIter) + 1;        
+        xToPlot(xDataSortIter(legendDataSortIter),legendDataSortIter) = xVarInCaseOrder(caseIter);
+        yToPlot(xDataSortIter(legendDataSortIter),legendDataSortIter) = yValuesOfInterest(caseIter);
+    end
+end    
+
+figure()
+hold on
+legendEntries = {};
+
+
+
+hold off
 
 figure()
 hold on
