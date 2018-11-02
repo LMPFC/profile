@@ -70,7 +70,7 @@ end
 
 
 
-aCases = [2 4 6 8 10];
+aCases = [2];
 numOfaCases = size(aCases,2);
 
 casesOfInterest(casesOfInterest==0) = [];   % Necessary
@@ -91,6 +91,7 @@ for aIter = 1:numOfaCases
     caseIndex = 0;
     for caseIter = casesOfInterest
         caseIndex = caseIndex + 1;
+        disp(dirList(caseIter+2).name)
         % Import the .csv files that contain the mesh data, magnetic field data,
         % and case parameters for the problem, created by pipeMeshForRingMagCalc.m
         Bx = importdata(['flowProfileMeshes/',dirList(caseIter+2).name,...
@@ -188,7 +189,7 @@ for aIter = 1:numOfaCases
             end
             
             MyTotal = sum(sum(sum(My)));
-            FxTotal = sum(sum(sum(Fx)));
+            FxTotal = sum(sum(sum(Fx))); 
             
             if MyTotal > 0
                 omegaGuessNew = (omegaGuess+omegaMax)/2;
@@ -213,6 +214,7 @@ for aIter = 1:numOfaCases
         end
         omegaSol(aIter,caseIndex) = omegaGuess;
         FxTotalSol(aIter,caseIndex) = FxTotal;
+        clear Fx Fy Fz Mx My Mz
     end
 end
 rPipeCases(rPipeCases==0) = [];
