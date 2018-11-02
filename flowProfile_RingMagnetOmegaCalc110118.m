@@ -5,6 +5,9 @@ close all
 % This 11/01/18 version works to do convergence studies and other kinds of
 % plots through various settings.
 
+% This version is considered unstable. 110218 will look to fix these
+% issues.
+
 dirList = dir('flowProfileMeshes');
 numOfFolders = size(dirList,1);
 
