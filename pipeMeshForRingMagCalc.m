@@ -20,6 +20,14 @@ for airGap = [0.0005 0.001 0.002 0.004 0.008 0.016 0.032]
         for thetaRes = [8 16 32]
             for lengthRes = [8 16 32 64]
                 
+                checkIfDirAlreadyExists = sprintf(...
+                    ['flowProfileMeshes/flowProfile_0p%04dairGap0p%04dpipeWall_',...
+                    '%04drRes%04dthetaRes%04dzRes0p%04drPipe0p%04dlPipe_0p%03dOR0p%03dIR0p%03dh'],...
+                    round(airGap*1e4),round(pipeWall*1e4),radialRes,thetaRes,lengthRes,rPipe*1e4,lPipe*1e4,rout*1e3,rin*1e3,h*1e3);
+                if 7==exist(checkIfDirAlreadyExists)    % Check to see the file doesn't already exist
+                    continue
+                end
+                
                 % Distance from pipe center to magnet center, mm res--THIS SHOULD NOT EXCEED 1m!!!
                 rFlowCenter = rout+pipeWall+airGap+rPipe;
                 

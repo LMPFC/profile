@@ -9,11 +9,11 @@ dirList = dir('flowProfileMeshes');
 numOfFolders = size(dirList,1);
 
 % Setup what the case requirements are
-rResReq = 32;
-thetaResReq =[8 16 32];
+rResReq = [8 16 32 64];
+thetaResReq = 16;
 lengthResReq = 16;
 pipeWallReq = 0.003;
-airGapReq = [0.001 0.002 0.004];
+airGapReq = [0.001 0.002 0.004 0.008 0.016];
 rPipeReq = 0.0127;
 lPipeReq = 0.2;
 magORReq = 0.05;
@@ -253,19 +253,19 @@ xAxisLabel = {
     'radial resolution'
     'theta resolution'
     'length resolution'
-    'pipe wall thickness'
-    'air gap size'
-    'pipe radius'
-    'pipe length'
-    'ring magnet OR'
-    'ring magnet IR'
-    'ring magnet height'
+    'pipe wall thickness [m]'
+    'air gap size [m]'
+    'pipe radius [m]'
+    'pipe length [m]'
+    'ring magnet OR [m]'
+    'ring magnet IR [m]'
+    'ring magnet height [m]'
     };
 
 % Parameter to be iterated on in the legend--a is handled separately.
 legendParameter = [
-    0   % radial resolution
-    1   % theta resolution
+    1   % radial resolution
+    0   % theta resolution
     0   % length resolution
     0   % pipe wall thickness
     0   % air gap size
@@ -318,8 +318,9 @@ for dataIter = 1:numOfCasesOfInterest
     legendVarInCaseOrder(dataIter) = sum(legendParameter.*casesOfInterestParams(:,dataIter));
     
 end
-
+% This is where the y axis is decided
 yValuesOfInterest = omegaSol(1,:);
+yAxisOfInterestLabel = 'omega';
 
 xDataSortIter = zeros(1,legendMaxIter);
 xDataSortIter(1,1) = 1;
@@ -347,9 +348,9 @@ for caseIter = 2:numOfCasesOfInterest
             xVarInCaseOrder(caseIter);
         yToPlot(xDataSortIter(legendDataSortIter),legendDataSortIter) =...
             yValuesOfInterest(caseIter);
-        disp('legend value did not change')
+
     else
-        disp('legend value changed')
+
         previousLegendVal = legendVarInCaseOrder(caseIter);
         legendDataSortIter = sum( (1:legendMaxIter).*(previousLegendVal==orderedLegendVals) );
         xDataSortIter(legendDataSortIter) = xDataSortIter(legendDataSortIter) + 1;        
@@ -364,8 +365,16 @@ legendEntries = {};
 
 for legendIter = 1:legendMaxIter
     plot(xToPlot(:,legendIter),yToPlot(:,legendIter),'-o','LineWidth',1.5)
+    
+    legendEntry = [char(legendLabel(sum((1:10)'.*legendParameter))),...
+        sprintf(' = %d',orderedLegendVals(legendIter))];
+    legendEntries = [legendEntries;legendEntry];
     % NEED TO ADD TO THIS FOR THE PLOTTING!
 end
+xlabel(char(xAxisLabel(sum((1:10)'.*xAxisParameter))))
+ylabel(yAxisOfInterestLabel)
+legend(legendEntries)
+set(gca,'FontSize',20)
 
 hold off
 
