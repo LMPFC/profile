@@ -2,18 +2,18 @@ clear
 clc
 close all
 
-% This 11/02/18 version is considered unstable at this time, possible errors from 
-% the 11/01/18 may still be present.
+% This 11/12/18 version is considered unstable at this time.
+% Trying to add in the capability for all mesh work to happen in this code
+% with regards to making the meshes if they don't already exist. Also, the
+% ability to output a data file that has the solved omega value.
 
-dirList = dir('flowProfileData');
-numOfFolders = size(dirList,1);
 
 % Setup what the case requirements are
-rResReq = [8 16 32 64];
+rResReq = [8];
 thetaResReq = 16;
 lengthResReq = 16;
 pipeWallReq = 0.003;
-airGapReq = [0.001 0.002 0.004 0.008];
+airGapReq = [0.001 0.002];
 rPipeReq = 0.0127;
 lPipeReq = 0.2;
 magORReq = 0.05;
@@ -36,7 +36,41 @@ numOfmagORCases = size(magORReq,2);
 numOfmagIRCases = size(magIRReq,2);
 numOfmagHCases = size(magHReq,2);
 
+for checkRRes = rResReq
+    for checkThetaRes = thetaResReq
+        for checkLengthRes = lengthResReq
+            for checkPipeWall = pipeWallReq
+                for checkAirGap = airGapReq
+                    for checkRPipe = rPipeReq
+                        for checkLPipe = lPipeReq
+                            for checkMagOR = magORReq
+                                for checkMagIR = magIRReq
+                                    for checkMagH = magHReq
+                                        
+                                        pipeMeshForRingMagCalc_FunForm(...
+                                            checkRPipe,checkLPipe,checkRRes,...
+                                            checkLengthRes,checkThetaRes,...
+                                            checkMagIR,checkMagOR,checkMagH,...
+                                            checkPipeWall,checkAirGap);
+                                        
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+
+
+dirList = dir('flowProfileData');
+numOfFolders = size(dirList,1);
+
 for fileIter = 3:numOfFolders
+    
     caseParams = importdata(['flowProfileData/',dirList(fileIter).name,...
         '/flowProfile_Parameters.csv']);
     
@@ -216,6 +250,16 @@ for aIter = 1:numOfaCases
         FxTotalSol(aIter,caseIndex) = FxTotal;
         clear Fx Fy Fz Mx My Mz
     end
+    
+% This bit of code is for writing both the calculated omega value and the
+% force value on the magnet to a file so that it may be loaded instead of
+% calculated to save time.
+    
+%     directoryNameToPrintTo = sprintf(...
+%     ['flowProfileData/flowProfile_0p%04dairGap0p%04dpipeWall_',...
+%     '%04drRes%04dthetaRes%04dzRes0p%04drPipe0p%04dlPipe_0p%03dOR0p%03dIR0p%03dh'],...
+%     round(airGap*1e4),round(pipeWall*1e4),radialRes,thetaRes,lengthRes,rPipe*1e4,lPipe*1e4,rout*1e3,rin*1e3,h*1e3);
+
 end
 rPipeCases(rPipeCases==0) = [];
 airGapCases(airGapCases==0) = [];
